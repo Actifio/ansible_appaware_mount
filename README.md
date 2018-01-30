@@ -1,4 +1,4 @@
-NOTE: Not Operational Yet, Check back in a week :).
+NOTE: Not yet operational, Check back in a week :).
 
 ansible_appaware_mount
 ======================
