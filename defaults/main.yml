@@ -1,0 +1,14 @@
+---
+# defaults file for ansible_appaware_mount
+
+#Actifio Appliance
+act_appliance: 192.168.57.128
+
+# Actifio Username
+act_user: admin
+
+# Password
+act_pass: password
+
+# VendorKey, this can be requested from the Customer Success Engineering team via a case.
+act_vendorkey: ''
