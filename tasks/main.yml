@@ -84,23 +84,21 @@
 - name: appaware mount from the image
   uri:
     url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}"
-    # body: "recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}" # Custom filter plugins
-    # body_format: raw
     method: POST
     validate_certs: no
     timeout: 1200
   vars:
     provisioning_options:
       # Oracle Home
-      orahome: '/u01/app/oracle/product/11.2.0/ora_1'
+      orahome: "{{ ora_home }}"
       # Oracle_user
       username: 'oracle'
       # Oracle SID
-      databasesid: 'ANSIBLE'
+      databasesid: "{{ ora_db_name }}"
       # Oracle TNS_ADMIN
       tnsadmindir: "/u01/app/oracle/product/11.2.0/ora_1/network/admin"
       # Oracle Total Memory
-      totalmemory: "400"
+      totalmemory: "{{ ora_db_size }}"
       # Oracle SGA %
       sgapct: ''
       # Oracl redo size
