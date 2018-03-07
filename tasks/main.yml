@@ -1,0 +1,135 @@
+---
+# tasks file for ansible_appaware_mount
+
+- name: generating authentication token 
+  uri:
+    url: "{{ act_api_login }}"
+    validate_certs: no  
+  register: logintoken
+
+- name: get the application id
+  uri:
+    url: "{{ act_api_info }}/lsapplication?sessionid={{ logintoken.json.sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}"
+    validate_certs: no
+    method: GET
+  register: lsapplication   
+
+# try to ascertain the destination host ID
+- name: search for host_id from name
+  block: 
+    - uri:
+        url: "{{ act_api_info }}/lshost?sessionid={{ logintoken.json.sessionid }}&filtervalue=hostname={{ act_dest_host }}"
+        validate_certs: no
+      register: hostid
+    
+    - set_fact:
+        host_id: "{{ hostid.json.result.0.id }}"
+      when: hostid is defined
+
+- name: search for the host_id from the IP addresses
+  block:
+    - name: query for the hostID from IP
+      uri: 
+        url: "{{ act_api_info }}/lshost?filtervalue=ipaddress={{ item }}&sessionid={{ logintoken.json.sessionid }}"
+        validate_certs: no
+      register: hostid
+      with_items:
+        - ansible_all_ipv4_addresses
+    
+    - set_fact:
+        host_id: "{{ hostid.json.result.0.id }}"
+  when: hostid is not defined
+
+- name: fail when the target host cannot be found
+  fail:
+    msg: "Unable to find a hostID with a matching description" 
+  when: host_id == ''
+
+############ Get the backup list ########################
+- block: 
+    - name: get the image list select the image from (for all the job_classes)
+      uri: 
+        url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ logintoken.json.sessionid }}"
+        validate_certs: no
+      register: lsbackup
+    - set_fact:
+        image_list: "{{ lsbackup }}"
+  when: act_job_class == ''
+
+- block:
+    - name: get the image list select the image from (for {{ act_job_class }} job_class)
+      uri: 
+        url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ logintoken.json.sessionid }}"
+        validate_certs: no
+      register: lsbackup
+    - set_fact:
+        image_list: "{{ lsbackup }}"
+  when: act_job_class != ''
+
+##########################################################
+
+- name: selecting an image to mount
+  uri:
+    url: "{{ act_api_info }}/lsbackup?argument={{ item.backupname }}&sessionid={{ logintoken.json.sessionid }}"
+    validate_certs: no
+  register: image 
+  with_items: 
+    - "{{ image_list.json.result }}"
+
+- name: save the image name to facts
+  set_fact: 
+    image_name: "{{ image | get_image_name (act_restoretime, strict_policy) }}" # Custom filter plugin
+  when: image is defined
+
+- name: appaware mount from the image
+  uri:
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}"
+    # body: "recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}" # Custom filter plugins
+    # body_format: raw
+    method: POST
+    validate_certs: no
+    timeout: 1200
+  vars:
+    provisioning_options:
+      # Oracle Home
+      orahome: '/u01/app/oracle/product/11.2.0/ora_1'
+      # Oracle_user
+      username: 'oracle'
+      # Oracle SID
+      databasesid: 'ANSIBLE'
+      # Oracle TNS_ADMIN
+      tnsadmindir: "/u01/app/oracle/product/11.2.0/ora_1/network/admin"
+      # Oracle Total Memory
+      totalmemory: "400"
+      # Oracle SGA %
+      sgapct: ''
+      # Oracl redo size
+      redosize: 500
+      # Oracle shared pool size
+      shared_pool_size: ''
+      # Oracle DB Cache size
+      db_cache_size: ''
+      # Oracle recovery file dest
+      db_recovery_file_dest_size: 50000
+      # Oracle Diagnostic destinatiom
+      diagnostic_dest: ''
+      # Max number of processes
+      processes: 500
+      # Ora Open Cursors
+      open_cursors: ''
+      # Oracle DB Character set
+      characterset: 'AL32UTF8'
+      # TNS IP
+      tnsip: ''
+      # TNS Port
+      tnsport: ''
+      # TNS Domain
+      tnsdomain: ''
+      # Do not change DBID
+      nonid: 'FALSE'
+      # Do not update the TNSNAMES.ORA
+      notnsupdate: ''
+      # Recover new oracle DB
+      rrecovery: 'TRUE'
+      # Recover 
+      standalone: 'FALSE'

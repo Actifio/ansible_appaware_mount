@@ -1,8 +1,11 @@
 ---
 # defaults file for ansible_appaware_mount
 
+# Strict policy: If the restore options cannot be satified, fail operation:
+strict_policy: no
+
 #Actifio Appliance
-act_appliance: 192.168.57.128
+act_appliance: ''
 
 # Actifio Username
 act_user: admin
@@ -12,3 +15,61 @@ act_pass: password
 
 # VendorKey, this can be requested from the Customer Success Engineering team via a case.
 act_vendorkey: ''
+
+# Actifio Host Friendly name or the IP
+act_dest_host: "{{ ansible_hostname }}"
+
+# Actifio Application
+act_appname: ''
+
+# Actifio source host....
+act_src_host: ''
+
+# Actifio Image type (snapshot, dedup, dedupasync, liveclone and syncback)
+# if this is not specified, backups will be searched from all the available
+# images
+act_job_class: ''
+
+ora_provisioning_options:
+  # Oracle Home
+  ora_home: ''
+  # Oracle_user
+  ora_username: 'oracle'
+  # Oracle SID
+  ora_db_name: 'ANSIBLE'
+  # Oracle TNS_ADMIN
+  ora_tns_admin: "{{ ora_home }}/network/admin"
+  # Oracle Total Memory
+  ora_db_mem: "512"
+  # Oracle SGA %
+  ora_sga_pct: ''
+  # Oracl redo size
+  ora_redo_size: 500
+  # Oracle shared pool size
+  ora_shared_pool: ''
+  # Oracle DB Cache size
+  ora_db_cache_size: ''
+  # Oracle recovery file dest
+  ora_recover_dest_size: 50000
+  # Oracle Diagnostic destinatiom
+  ora_diagnostic_dest: ''
+  # Max number of processes
+  ora_nprocs: 500
+  # Ora Open Cursors
+  ora_open_cursors: ''
+  # Oracle DB Character set
+  ora_char_set: 'AL32UTF8'
+  # TNS IP
+  ora_tns_ip: ''
+  # TNS Port
+  ora_tns_port: ''
+  # TNS Domain
+  ora_tns_domain: ''
+  # Do not change DBID
+  ora_no_nid: 'FALSE'
+  # Do not update the TNSNAMES.ORA
+  ora_no_tns_update: ''
+  # Recover new oracle DB
+  ora_restore_recov: 'TRUE'
+  # Recover 
+  ora_no_rac: 'FALSE'
