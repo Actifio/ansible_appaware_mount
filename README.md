@@ -51,7 +51,7 @@ Following variables are accepted/required for this role.
 Example Playbook
 ----------------
 
-,,,
+```
 - name: testng mount points
   hosts: "{{ host_group }}"
   become: yes
@@ -66,7 +66,7 @@ Example Playbook
     act_job_class: "OnVault"
     ora_home: "/u01/app/oracle/product/11.2.0/ora_1"
     ora_db_name: "MYDEVBEAST" 
-,,,
+```
 
 License
 -------
