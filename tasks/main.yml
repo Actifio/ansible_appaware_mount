@@ -95,10 +95,18 @@
 - set_fact: 
     image_name: "{{ act_imagenmae }}"
 
+# Cature the capabilities of this version.
+
+- name: capturing the capcbilities from the actifio appliance
+  uri:
+    url: "{{ act_api_info }}/lsappclass?name=Oracle&sessionid={{ logintoken.json.sessionid }}"
+    validate_certs: no
+  register: capabilities
+
 # Trigger appawre mount
 - name: appaware mount from the image
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
