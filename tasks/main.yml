@@ -1,18 +1,24 @@
 ---
-# tasks file for ansible_appaware_mount
 
+# Generate a login token using the username, password and vendorkey
 - name: generating authentication token 
   uri:
     url: "{{ act_api_login }}"
     validate_certs: no  
   register: logintoken
 
+# Filte out the applicationid based on the application_name and source_host
 - name: get the application id
   uri:
     url: "{{ act_api_info }}/lsapplication?sessionid={{ logintoken.json.sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}"
     validate_certs: no
     method: GET
   register: lsapplication   
+
+# Extract the appclass of the application. Using this in mountimage
+- name: saving application class
+  set_fact: 
+    appclass: "{{ lsapplication.json.result[0].appclass }}"
 
 # try to ascertain the destination host ID
 - name: search for host_id from name
@@ -26,6 +32,8 @@
         host_id: "{{ hostid.json.result.0.id }}"
       when: hostid is defined
 
+# Should this fail, we will assume that the ansible_host is specified and 
+# try to filterout the host_ids using the IP addresses.
 - name: search for the host_id from the IP addresses
   block:
     - name: query for the hostID from IP
@@ -40,53 +48,61 @@
         host_id: "{{ hostid.json.result.0.id }}"
   when: hostid is not defined
 
+# Fail if the host could not be found
 - name: fail when the target host cannot be found
   fail:
     msg: "Unable to find a hostID with a matching description" 
   when: host_id == ''
 
-############ Get the backup list ########################
-- block: 
-    - name: get the image list select the image from (for all the job_classes)
-      uri: 
-        url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ logintoken.json.sessionid }}"
-        validate_certs: no
-      register: lsbackup
-    - set_fact:
-        image_list: "{{ lsbackup }}"
-  when: act_job_class == ''
-
 - block:
-    - name: get the image list select the image from (for {{ act_job_class }} job_class)
-      uri: 
-        url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ logintoken.json.sessionid }}"
+# Filter all the available backups if the jobclass is not specified
+    - block: 
+        - name: get the image list select the image from (for all the job_classes)
+          uri: 
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ logintoken.json.sessionid }}"
+            validate_certs: no
+          register: lsbackup
+        - set_fact:
+            image_list: "{{ lsbackup }}"
+      when: act_job_class == ''
+
+    # Filter all the backup images if the jobclass is specified.
+    - block:
+        - name: get the image list select the image from (for {{ act_job_class }} job_class)
+          uri: 
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ logintoken.json.sessionid }}"
+            validate_certs: no
+          register: lsbackup
+        - set_fact:
+            image_list: "{{ lsbackup }}"
+      when: act_job_class != ''
+
+    # Selecting the image to mount based on the restoretime and strict_poliocy
+    - name: selecting an image to mount
+      uri:
+        url: "{{ act_api_info }}/lsbackup?argument={{ item.backupname }}&sessionid={{ logintoken.json.sessionid }}"
         validate_certs: no
-      register: lsbackup
-    - set_fact:
-        image_list: "{{ lsbackup }}"
-  when: act_job_class != ''
+      register: image 
+      with_items: 
+        - "{{ image_list.json.result }}"
 
-##########################################################
+    - name: save the image name to facts
+      set_fact: 
+        image_name: "{{ image | get_image_name (act_restoretime, strict_policy) }}" # Custom filter plugin
+      when: image is defined
+  when: act_imagename == ''
 
-- name: selecting an image to mount
-  uri:
-    url: "{{ act_api_info }}/lsbackup?argument={{ item.backupname }}&sessionid={{ logintoken.json.sessionid }}"
-    validate_certs: no
-  register: image 
-  with_items: 
-    - "{{ image_list.json.result }}"
+- set_fact: 
+    image_name: "{{ act_imagenmae }}"
 
-- name: save the image name to facts
-  set_fact: 
-    image_name: "{{ image | get_image_name (act_restoretime, strict_policy) }}" # Custom filter plugin
-  when: image is defined
-
+# Trigger appawre mount
 - name: appaware mount from the image
   uri:
     url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options () | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
+  when: appclass == "Oracle"
   vars:
     provisioning_options:
       # Oracle Home
@@ -96,38 +112,38 @@
       # Oracle SID
       databasesid: "{{ ora_db_name }}"
       # Oracle TNS_ADMIN
-      tnsadmindir: "/u01/app/oracle/product/11.2.0/ora_1/network/admin"
+      tnsadmindir: "{{ ora_home }}/network/admin"
       # Oracle Total Memory
       totalmemory: "{{ ora_db_size }}"
       # Oracle SGA %
-      sgapct: ''
+      sgapct: "{{ ora_sga_pct }}"
       # Oracl redo size
-      redosize: 500
+      redosize: "{{ ora_redo_size }}"
       # Oracle shared pool size
-      shared_pool_size: ''
+      shared_pool_size: "{{ ora_shared_pool }}"
       # Oracle DB Cache size
-      db_cache_size: ''
+      db_cache_size: "{{ ora_db_cache_size }}"
       # Oracle recovery file dest
-      db_recovery_file_dest_size: 50000
+      db_recovery_file_dest_size: "{{ ora_recover_dest_size }}"
       # Oracle Diagnostic destinatiom
-      diagnostic_dest: ''
+      diagnostic_dest: "{{ ora_diagnostic_dest }}"
       # Max number of processes
-      processes: 500
+      processes: "{{ ora_nprocs }}"
       # Ora Open Cursors
-      open_cursors: ''
+      open_cursors: "{{ ora_open_cursors }}"
       # Oracle DB Character set
-      characterset: 'AL32UTF8'
+      characterset: "{{ ora_char_set }}"
       # TNS IP
-      tnsip: ''
+      tnsip: "{{ ora_tns_ip }}"
       # TNS Port
-      tnsport: ''
+      tnsport: "{{ ora_tns_port }}"
       # TNS Domain
-      tnsdomain: ''
+      tnsdomain: "{{ ora_tns_domain }}"
       # Do not change DBID
-      nonid: 'FALSE'
+      nonid: "{{ ora_no_nid }}"
       # Do not update the TNSNAMES.ORA
-      notnsupdate: ''
+      notnsupdate: "{{ ora_no_tns_update }}"
       # Recover new oracle DB
-      rrecovery: 'TRUE'
+      rrecovery: "{{ ora_restore_recov }}"
       # Recover 
-      standalone: 'FALSE'
+      standalone: "{{ ora_no_rac }}"

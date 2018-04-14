@@ -62,12 +62,15 @@ def get_image_name (values, resttime, strict):
                 prevdiff = currdif
     return preferedimg['json']['result']['backupname']
 
-def gen_prov_options (poptions):
+def gen_prov_options (poptions, capabilities):
     ret_out = ""
     for key in poptions:
         if poptions[key] != '':
-            ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
+            for item in capabilities:
+                if item['name'] == str(key):
+                    ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
     return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
+
 
 class FilterModule(object):
     def filters(self):
