@@ -13,30 +13,32 @@ def get_image_name (values, resttime, strict):
     from ansible import errors
 
     import json
-    tf = "%Y-%m-%d %H:%M:%S"
-    if resttime is not None:
-        try:
-            restoretime = datetime.strptime (resttime, tf)
-        except:
-            raise errors.AnsibleFilterError('Icorrect date format ['+resttime+']')
+    if resttime == "latest":
+        tf = "%Y-%m-%d %H:%M:%S"
+        if resttime is not None:
+            try:
+                restoretime = datetime.strptime (resttime, tf)
+            except:
+                raise errors.AnsibleFilterError('Icorrect date format ['+resttime+']')
+    else:
+        restoretime = datetime.now()
 
+    preferedtime = None
+    
     for image in values['results']:
         # capture the start time and end time
         # this is in a try catch loop as some images does not have a begin
         # end pit, for example onvault images.
         
-        try: 
-            starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
-            endtime = datetime.strptime (image['json']['result']['endpit'], tf)
-            if  starttime < restoretime < endtime:
-                return image['json']['result']['backupname']
-        except:
-            pass
-# if LS image is not possbile, lets try to grab the closes image as long as we have set the strict_mode off
-
-    if not strict:
-        preferedtime = None
-        for image in values['results']:
+        if strict: 
+            try: 
+                starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
+                endtime = datetime.strptime (image['json']['result']['endpit'], tf)
+                if  starttime < restoretime < endtime:
+                    return image['json']['result']['backupname']
+            except:
+                pass
+        if not strict:
             try:
                 imgtime =  datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
             except:
@@ -60,7 +62,7 @@ def get_image_name (values, resttime, strict):
                 preferedtime = imgtime
                 preferedimg = image
                 prevdiff = currdif
-    return preferedimg['json']['result']['backupname']
+        return preferedimg['json']['result']['backupname']
 
 def gen_prov_options (poptions, capabilities):
     ret_out = ""
