@@ -9,7 +9,7 @@
     - "{{ act_src_host }}"
     - "{{ act_appname }}"
     - "{{ act_vendorkey }}"
-    = "{{ act_restoretime }}"
+    - "{{ act_restoretime }}"
 
 # Generate a login token using the username, password and vendorkey
 - name: generating authentication token 
