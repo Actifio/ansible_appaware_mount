@@ -13,7 +13,7 @@ def get_image_name (values, resttime, strict):
     from ansible import errors
 
     import json
-    if resttime == "latest":
+    if resttime != "latest":
         tf = "%Y-%m-%d %H:%M:%S"
         if resttime is not None:
             try:
