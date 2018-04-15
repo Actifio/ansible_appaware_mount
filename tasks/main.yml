@@ -1,5 +1,15 @@
 ---
 
+# Pre-FLight check for variable consistency
+- fail:
+    msg: the variable "{{ item }}" should be defined.
+  when: item is not defined
+  with_items:
+    - "{{ ora_home }}"
+    - "{{ act_src_host }}"
+    - "{{ act_appname }}"
+    - "{{ act_vendorkey }}"
+
 # Generate a login token using the username, password and vendorkey
 - name: generating authentication token 
   uri:
@@ -116,7 +126,7 @@
       # Oracle Home
       orahome: "{{ ora_home }}"
       # Oracle_user
-      username: 'oracle'
+      username: "{{ ora_username }}"
       # Oracle SID
       databasesid: "{{ ora_db_name }}"
       # Oracle TNS_ADMIN
