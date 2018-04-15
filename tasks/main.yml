@@ -18,10 +18,14 @@
     validate_certs: no  
   register: logintoken
 
+- name: session id is a fact
+  set_fact: 
+    act_sessionid: "{{ logintoken.json.sessionid }}"
+
 # Filte out the applicationid based on the application_name and source_host
 - name: get the application id
   uri:
-    url: "{{ act_api_info }}/lsapplication?sessionid={{ logintoken.json.sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}"
+    url: "{{ act_api_info }}/lsapplication?sessionid={{ act_sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}"
     validate_certs: no
     method: GET
   register: lsapplication   
@@ -35,7 +39,7 @@
 - name: search for host_id from name
   block: 
     - uri:
-        url: "{{ act_api_info }}/lshost?sessionid={{ logintoken.json.sessionid }}&filtervalue=hostname={{ act_dest_host }}"
+        url: "{{ act_api_info }}/lshost?sessionid={{ lact_sessionid }}&filtervalue=hostname={{ act_dest_host }}"
         validate_certs: no
       register: hostid
     
@@ -49,7 +53,7 @@
   block:
     - name: query for the hostID from IP
       uri: 
-        url: "{{ act_api_info }}/lshost?filtervalue=ipaddress={{ item }}&sessionid={{ logintoken.json.sessionid }}"
+        url: "{{ act_api_info }}/lshost?filtervalue=ipaddress={{ item }}&sessionid={{ act_sessionid }}"
         validate_certs: no
       register: hostid
       with_items:
@@ -70,7 +74,7 @@
     - block: 
         - name: get the image list select the image from (for all the job_classes)
           uri: 
-            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ logintoken.json.sessionid }}"
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ act_sessionid }}"
             validate_certs: no
           register: lsbackup
         - set_fact:
@@ -81,7 +85,7 @@
     - block:
         - name: get the image list select the image from (for {{ act_job_class }} job_class)
           uri: 
-            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ logintoken.json.sessionid }}"
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ act_sessionid }}"
             validate_certs: no
           register: lsbackup
         - set_fact:
@@ -91,7 +95,7 @@
     # Selecting the image to mount based on the restoretime and strict_poliocy
     - name: selecting an image to mount
       uri:
-        url: "{{ act_api_info }}/lsbackup?argument={{ item.backupname }}&sessionid={{ logintoken.json.sessionid }}"
+        url: "{{ act_api_info }}/lsbackup?argument={{ item.backupname }}&sessionid={{ act_sessionid }}"
         validate_certs: no
       register: image 
       with_items: 
@@ -110,14 +114,14 @@
 
 - name: capturing the capcbilities from the actifio appliance
   uri:
-    url: "{{ act_api_info }}/lsappclass?name=Oracle&sessionid={{ logintoken.json.sessionid }}"
+    url: "{{ act_api_info }}/lsappclass?name=Oracle&sessionid={{ act_sessionid }}"
     validate_certs: no
   register: capabilities
 
 # Trigger appawre mount
 - name: appaware mount from the image
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ logintoken.json.sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&sessionid={{ act_sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
