@@ -107,9 +107,6 @@
       when: image is defined
   when: act_imagename == ''
 
-- set_fact: 
-    image_name: "{{ act_imagename }}"
-
 # Cature the capabilities of this version.
 
 - name: capturing the capcbilities from the actifio appliance
