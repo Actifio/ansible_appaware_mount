@@ -11,8 +11,8 @@ def array_to_csv(values=[]):
 def get_image_name (values, resttime, strict):
     from datetime import datetime
     from ansible import errors
-
     import json
+    
     if resttime != "latest":
         tf = "%Y-%m-%d %H:%M:%S"
         if resttime is not None:
