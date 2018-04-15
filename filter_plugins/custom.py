@@ -23,22 +23,37 @@ def get_image_name (values, resttime, strict):
     else:
         restoretime = datetime.now()
 
-    preferedtime = None
-    
     for image in values['results']:
         # capture the start time and end time
         # this is in a try catch loop as some images does not have a begin
         # end pit, for example onvault images.
         
-        if strict: 
-            try: 
-                starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
-                endtime = datetime.strptime (image['json']['result']['endpit'], tf)
-                if  starttime < restoretime < endtime:
-                    return image['json']['result']['backupname']
-            except:
-                pass
-        if not strict:
+        try: 
+            starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
+            endtime = datetime.strptime (image['json']['result']['endpit'], tf)
+            if  starttime < restoretime < endtime:
+                return image['json']['result']['backupname']
+        except:
+            pass
+# if LS image is not possbile, lets try to grab the closes image as long as we have set the strict_mode off
+
+    for image in values['results']:
+        # capture the start time and end time
+        # this is in a try catch loop as some images does not have a begin
+        # end pit, for example onvault images.
+        
+        try: 
+            starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
+            endtime = datetime.strptime (image['json']['result']['endpit'], tf)
+            if  starttime < restoretime < endtime:
+                return image['json']['result']['backupname']
+        except:
+            pass
+# if LS image is not possbile, lets try to grab the closes image as long as we have set the strict_mode off
+
+    if not strict:
+        preferedtime = None
+        for image in values['results']:
             try:
                 imgtime =  datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
             except:
@@ -62,17 +77,18 @@ def get_image_name (values, resttime, strict):
                 preferedtime = imgtime
                 preferedimg = image
                 prevdiff = currdif
-        return preferedimg['json']['result']['backupname']
+    return preferedimg['json']['result']['backupname']
 
 def gen_prov_options (poptions, capabilities):
     ret_out = ""
     for key in poptions:
+        # if this provisioning option is defined
         if poptions[key] != '':
+            # and this capability is available in this version of actifio
             for item in capabilities:
                 if item['name'] == str(key):
                     ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
     return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
-
 
 class FilterModule(object):
     def filters(self):
