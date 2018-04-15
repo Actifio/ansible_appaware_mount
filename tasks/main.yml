@@ -39,7 +39,7 @@
 - name: search for host_id from name
   block: 
     - uri:
-        url: "{{ act_api_info }}/lshost?sessionid={{ lact_sessionid }}&filtervalue=hostname={{ act_dest_host }}"
+        url: "{{ act_api_info }}/lshost?sessionid={{ act_sessionid }}&filtervalue=hostname={{ act_dest_host }}"
         validate_certs: no
       register: hostid
     
