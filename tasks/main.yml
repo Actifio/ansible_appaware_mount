@@ -133,7 +133,7 @@
       # Oracle TNS_ADMIN
       tnsadmindir: "{{ ora_home }}/network/admin"
       # Oracle Total Memory
-      totalmemory: "{{ ora_db_size }}"
+      totalmemory: "{{ ora_db_mem }}"
       # Oracle SGA %
       sgapct: "{{ ora_sga_pct }}"
       # Oracl redo size
