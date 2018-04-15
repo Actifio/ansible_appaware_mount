@@ -1,5 +1,15 @@
 ---
 
+- name: check if oracle has already been installed
+  block:
+    - command: grep -q "^{{ oracle_db_name }}:" /etc/oratab
+      ignore_errors: yes
+      register: oracle_installed
+    - fail:
+        msg: "instance already configured with the same SID"
+      when: oracle_installed.rc != 0
+  when: act_dest_host == ansible_host
+  
 # Pre-FLight check for variable consistency
 - fail:
     msg: the variable "{{ item }}" should be defined.
