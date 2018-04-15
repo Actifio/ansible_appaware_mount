@@ -104,7 +104,7 @@
   when: act_imagename == ''
 
 - set_fact: 
-    image_name: "{{ act_imagenmae }}"
+    image_name: "{{ act_imagename }}"
 
 # Cature the capabilities of this version.
 
