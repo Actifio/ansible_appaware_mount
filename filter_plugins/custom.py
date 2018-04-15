@@ -13,8 +13,8 @@ def get_image_name (values, resttime, strict):
     from ansible import errors
     import json
     
+    tf = "%Y-%m-%d %H:%M:%S"
     if resttime != "latest":
-        tf = "%Y-%m-%d %H:%M:%S"
         if resttime is not None:
             try:
                 restoretime = datetime.strptime (resttime, tf)
@@ -44,7 +44,8 @@ def get_image_name (values, resttime, strict):
             try:
                 imgtime =  datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
             except:
-                pass
+                raise errors.AnsibleFilterError(image['json']['result']['consistencydate'][:-4])
+                # pass
             
             if preferedtime == None:
                 preferedtime = imgtime
