@@ -3,7 +3,7 @@
 # Pre-FLight check for variable consistency
 - fail:
     msg: the variable "{{ item }}" should be defined.
-  when: item is not defined
+  when: item == ''
   with_items:
     - "{{ ora_home }}"
     - "{{ act_src_host }}"
