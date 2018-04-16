@@ -2,7 +2,7 @@
 
 - name: check if oracle has already been installed
   block:
-    - command: grep -q "^{{ oracle_db_name }}:" /etc/oratab
+    - command: grep -q "^{{ ora_db_name }}:" /etc/oratab
       ignore_errors: yes
       register: oracle_installed
     - fail:
