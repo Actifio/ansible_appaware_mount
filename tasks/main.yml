@@ -7,7 +7,7 @@
       register: oracle_installed
     - fail:
         msg: "instance already configured with the same SID"
-      when: oracle_installed.rc != 0
+      when: oracle_installed.rc == 0
   when: act_dest_host == ansible_hostname
 
 # Pre-FLight check for variable consistency
