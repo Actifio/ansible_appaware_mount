@@ -8,8 +8,8 @@
     - fail:
         msg: "instance already configured with the same SID"
       when: oracle_installed.rc != 0
-  when: act_dest_host == ansible_host
-  
+  when: act_dest_host == ansible_hostname
+
 # Pre-FLight check for variable consistency
 - fail:
     msg: the variable "{{ item }}" should be defined.
