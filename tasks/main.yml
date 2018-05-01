@@ -1,5 +1,7 @@
 ---
 
+# Check whether same SID is already configured, if we're running
+# on the ansible inventory item.
 - name: check if oracle has already been installed
   block:
     - command: grep -q "^{{ ora_db_name }}:" /etc/oratab
