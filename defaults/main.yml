@@ -33,6 +33,8 @@ act_src_host: ''
 # images
 act_job_class: ''
 
+# Actifio image name, option to specify the image name or the restore time 
+act_imagename: ''
 # Oracle Home
 ora_home: ''
 # Oracle_user
