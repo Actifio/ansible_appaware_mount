@@ -134,6 +134,8 @@
     method: POST
     validate_certs: no
     timeout: 1200
+  async: 50
+  poll: 10
   when: appclass == "Oracle" and act_restoretime != "latest"
   
 - name: appaware mount from the latest image
@@ -142,5 +144,7 @@
     method: POST
     validate_certs: no
     timeout: 1200
+  async: 50
+  poll: 10
   when: appclass == "Oracle" and act_restoretime == "latest"
   
