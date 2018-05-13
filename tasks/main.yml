@@ -127,10 +127,15 @@
     validate_certs: no
   register: capabilities
 
+- name: non-blocking mount operations
+  set_fact: 
+    block_mode: "nowait&"
+  when: act_nowait_mount == TRUE
+
 # Trigger appawre mount
 - name: appaware mount from the image to a restore point
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&label=Ansible_Playbook&sessionid={{ act_sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&{{ block_mode }}label=Ansible_Playbook&sessionid={{ act_sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
@@ -139,7 +144,7 @@
   
 - name: appaware mount from the latest image
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&label=Ansible_Playbook&sessionid={{ act_sessionid }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&{{ block_mode }}label=Ansible_Playbook&sessionid={{ act_sessionid }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200

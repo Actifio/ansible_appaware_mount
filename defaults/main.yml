@@ -33,6 +33,9 @@ act_src_host: ''
 # images
 act_job_class: ''
 
+# MountImage operations to be non-blocking
+act_nowait_mount: TRUE
+
 # Actifio image name, option to specify the image name or the restore time 
 act_imagename: ''
 # Oracle Home
