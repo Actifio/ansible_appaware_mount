@@ -130,7 +130,7 @@
 - name: non-blocking mount operations
   set_fact: 
     block_mode: "nowait&"
-  when: act_nowait_mount == TRUE
+  when: act_nowait_mount == true
 
 # Trigger appawre mount
 - name: appaware mount from the image to a restore point
