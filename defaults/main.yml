@@ -80,3 +80,15 @@ ora_no_tns_update: ''
 ora_restore_recov: 'TRUE'
 # Recover 
 ora_no_rac: 'FALSE'
+# SQL Server Instance Name
+sql_instance_name: ''
+# Database Name
+sql_db_name: ''
+# Recover database after recovery
+sql_recover: 'TRUE'
+# Recover userlogins
+sql_userlogins: 'FALSE'
+# SQL username
+sql_username: ''
+# SQL Password 
+sql_password: ''

@@ -52,3 +52,15 @@ provisioning_options:
   rrecovery: "{{ ora_restore_recov }}"
   # Recover 
   standalone: "{{ ora_no_rac }}"
+  # SQL Server Instance Name
+  sqlinstance: "{{ sql_instance_name }}"
+  # Database Name
+  dbname: "{{ sql_db_name }}"
+  # Recover database after recovery
+  recover: "{{ sql_recover }}"
+  # Recover userlogins
+  userlogins: "{{ sql_userlogins }}"
+  # SQL username
+  username: "{{ sql_username }}"
+  # SQL Password 
+  password: "{{ sql_password }}"
