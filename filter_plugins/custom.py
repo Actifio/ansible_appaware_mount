@@ -29,13 +29,14 @@ def get_image_name (values, resttime, strict):
         # end pit, for example onvault images.
          
         if image['json']['result']['componenttype'] == '0':
-            try: 
-                starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
-                endtime = datetime.strptime (image['json']['result']['endpit'], tf)
-                if  starttime < restoretime < endtime:
-                    return image['json']['result']['backupname']
-            except:
-                pass
+            if image['json']['result']['mountedhost'] == '0':
+                try: 
+                    starttime = datetime.strptime (image['json']['result']['consistencydate'][:-4], tf)
+                    endtime = datetime.strptime (image['json']['result']['endpit'], tf)
+                    if  starttime < restoretime < endtime:
+                        return image['json']['result']['backupname']
+                except:
+                    pass
 
 # if LS image is not possbile, lets try to grab the closes image as long as we have set the strict_mode off
 
@@ -63,10 +64,11 @@ def get_image_name (values, resttime, strict):
                 currdif = imgtime - restoretime 
             
             if image['json']['result']['componenttype'] == "0":
-                if prevdiff.total_seconds() >= currdif.total_seconds(): #this is python 2.7 function
-                    preferedtime = imgtime
-                    preferedimg = image
-                    prevdiff = currdif
+                if image['json']['result']['mountedhost'] == '0':
+                    if prevdiff.total_seconds() >= currdif.total_seconds(): #this is python 2.7 function
+                        preferedtime = imgtime
+                        preferedimg = image
+                        prevdiff = currdif
     return preferedimg['json']['result']['backupname']
 
 def gen_prov_options (poptions, capabilities):
