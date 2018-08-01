@@ -82,7 +82,7 @@ def gen_prov_options (poptions, capabilities):
                     ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
     return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
 
-def pick_db_user (sql, ora):
+def pick_db_user (dummy, sql, ora):
     if sql == '':
         return ora
     else:
