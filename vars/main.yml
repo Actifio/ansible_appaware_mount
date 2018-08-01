@@ -12,8 +12,8 @@ act_api_login: "{{ act_api }}/login?name={{ act_user }}&password={{ act_pass }}&
 provisioning_options:
   # Oracle Home
   orahome: "{{ ora_home }}"
-  # Oracle_user
-  username: "{{ ora_username }}"
+  # Oracle_user or SQl Database user
+  username: "{{ sql_username | ora_username }}"
   # Oracle SID
   databasesid: "{{ ora_db_name }}"
   # Oracle TNS_ADMIN
@@ -60,7 +60,7 @@ provisioning_options:
   recover: "{{ sql_recover }}"
   # Recover userlogins
   userlogins: "{{ sql_userlogins }}"
-  # SQL username
-  username: "{{ sql_username }}"
+  # SQL username (This conflicts with ora_username, so handling it separately)
+  # username: "{{ sql_username }}"
   # SQL Password 
   password: "{{ sql_password }}"
