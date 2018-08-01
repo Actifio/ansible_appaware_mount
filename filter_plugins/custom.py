@@ -82,12 +82,19 @@ def gen_prov_options (poptions, capabilities):
                     ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
     return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
 
+def pick_db_user (sql, ora):
+    if sql == '':
+        return ora
+    else:
+        return sql
+
 class FilterModule(object):
     def filters(self):
         return {
             'net_interface_list': net_interface_list, 
             'get_image_name': get_image_name, 
             'array_to_csv': array_to_csv,
-            'gen_prov_options': gen_prov_options
+            'gen_prov_options': gen_prov_options,
+            'pick_db_user': pick_db_user
             }
         

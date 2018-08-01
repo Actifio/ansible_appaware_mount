@@ -13,7 +13,7 @@ provisioning_options:
   # Oracle Home
   orahome: "{{ ora_home }}"
   # Oracle_user or SQl Database user
-  username: "{{ sql_username | default(ora_username) }}"
+  username: "{{ '' | pick_db_user (sql_username, ora_username) }}"
   # Oracle SID
   databasesid: "{{ ora_db_name }}"
   # Oracle TNS_ADMIN
