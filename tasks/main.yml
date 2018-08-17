@@ -123,7 +123,7 @@
 
 - name: capturing the capcbilities from the actifio appliance
   uri:
-    url: "{{ act_api_info }}/lsappclass?name=Oracle&sessionid={{ act_sessionid }}"
+    url: "{{ act_api_info }}/lsappclass?name={{ appclass }}&sessionid={{ act_sessionid }}"
     validate_certs: no
   register: capabilities
 
