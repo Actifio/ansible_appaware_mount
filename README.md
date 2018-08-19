@@ -1,12 +1,12 @@
 ansible_appaware_mount
 ======================
 
-This is a ansible role to perform Actifio AppAware mounts for Oracle DB, for UNIX/Linux like operating systems.
+This is a ansible role to perform Actifio AppAware mounts for Oracle DB (UNIX/Linux like operating systems) and SQL Server DB/Instance.
 
 Requirements
 ------------
 
-Oracle Binaries installed on the host. You can use "kosalaat.oracle_install" role from Ansible Galaxy, to install the Database. 
+Oracle or SQL Server Binaries installed on the target host. You can use "kosalaat.oracle_install" role from Ansible Galaxy, to install the Database. 
 
 NOTE: for the Actifio AppAware mount would not need a DB created, for the above role, install_mode=INSTALL_DB_SWONLY would be enough.
 
@@ -27,6 +27,8 @@ Following variables are accepted/required for this role.
 | act_appname 	   | Application name | Y
 | act_src_host 	   | Source host where the application is protected from. | Y
 | act_job_class    | snapshot, dedup, dedupasync, liveclone, syncback and OnVault. If not specified would select any based on the Restore time, without any preference to the jobclass. | N
+| act_imagelabel   | Label for appaware mount image | N
+| ora_username     | Username of Oracle. Defaults to 'oracle' | Y
 | ora_home         | Oracle Home Directory | Y
 | ora_db_name      | Oracle DB Name, or the new SID | Y
 | ora_tns_admin    | Oracle TNS_ADMIN path. If not specified would assume ORALCLE_HOME/network/admin | N
@@ -47,6 +49,16 @@ Following variables are accepted/required for this role.
 | ora_no_tns_update 	| Do not update TNS records. Defaults to FALSE. | N
 | ora_restore_recov 	| Recover the oracle database. Defaults to TRUE. | N
 | ora_no_rac 	| Treat as Oracle RAC. Defaults to TRUE. | N
+| sql_instance_name     | Target SQL Server instance name. | Y
+| sql_db_name   | Database name at the target instance. (Only required if the source application is database or single database mount from instance.) | Y 
+| sql_recover   | Recover database. Defaults to TRUE. | N
+| sql_userlogins        | Recover user logins of the database. Defaults to FALSE. | N
+| sql_username  | Username for database provisioning. | N
+| sql_password  | Password for the specified user. | N 
+| sql_source_dbnames    | Source database names if the source application is SQL instance. Use ',' as delimiter for multiple databases. (Only required if the source application is SQL server instance.) | Y
+| sql_cg_name   | Consistency group name. (Only required if the source application is SQL Server instance and mount multiple databases at a time.) | Y
+| sql_dbname_prefix     | Prefix of database name for multiple database mount. | N
+| sql_dbname_suffix     | Suffix of database name for multiple database mount. | N
 
 Example Playbook
 ----------------

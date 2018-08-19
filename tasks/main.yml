@@ -17,7 +17,6 @@
     msg: the variable "{{ item }}" should be defined.
   when: item == ''
   with_items:
-    - "{{ ora_home }}"
     - "{{ act_src_host }}"
     - "{{ act_appname }}"
     - "{{ act_vendorkey }}"
@@ -129,25 +128,48 @@
 
 - name: non-blocking mount operations
   set_fact: 
-    block_mode: "nowait&"
+    block_mode: "&nowait"
   when: act_nowait_mount == true
 
+- name: blocking mount operations
+  set_fact: 
+    block_mode: ""
+  when: act_nowait_mount != true
+
+- name: set recovery time  
+  set_fact:
+    recovery_time: "&recoverytime={{ act_restoretime | urlencode }}"
+  when: act_restoretime != "latest"
+
+- name: unset recovery time  
+  set_fact:
+    recovery_time: ""
+  when: act_restoretime == "latest"
+
 # Trigger appawre mount
-- name: appaware mount from the image to a restore point
+- name: Oracle appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&{{ block_mode }}label=Ansible_Playbook&sessionid={{ act_sessionid }}&recoverytime={{ act_restoretime | urlencode }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
   async: 0
-  when: appclass == "Oracle" and act_restoretime != "latest"
+  when: appclass == "Oracle" 
   
-- name: appaware mount from the latest image
+- name: SQL Server appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}&{{ block_mode }}label=Ansible_Playbook&sessionid={{ act_sessionid }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
   async: 0
-  when: appclass == "Oracle" and act_restoretime == "latest"
-  
+  when: appclass == "SQLServer" 
+
+- name: SQL Server Group appaware mount 
+  uri:
+    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}&parts={{ sql_source_dbnames | urlencode }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options_sqlg (capabilities.json.result, sql_source_dbnames) | urlencode }}"
+    method: POST
+    validate_certs: no
+    timeout: 1200
+  async: 0
+  when: appclass == "SQLServerGroup" 
