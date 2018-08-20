@@ -24,6 +24,7 @@ def get_image_name (values, resttime, strict):
         restoretime = datetime.now()
     
     preferedtime = None
+    preferedimg = None
 
     snap_pref_time = None
     lc_pref_time = None
@@ -76,24 +77,30 @@ def get_image_name (values, resttime, strict):
                     preferedtime = starttime
                     preferedimg = image
                     prevdiff = currdif
+            
+            if preferedimg != None:
             # this is to check whether there're liveclones or mounts
             # available  
-            if jobclass == "snapshot":
-                snap_pref_time = preferedtime
-                snap_pref_img = preferedimg
-            elif jobclass == "liveclone":
-                lc_pref_time = preferedtime
-                lc_pref_img = preferedimg
-            elif jobclass == "mount":
-                mount_pref_time = preferedtime
-                mount_pref_img = preferedimg
+                if jobclass == "snapshot":
+                    snap_pref_time = preferedtime
+                    snap_pref_img = preferedimg
+                elif jobclass == "liveclone":
+                    lc_pref_time = preferedtime
+                    lc_pref_img = preferedimg
+                elif jobclass == "mount":
+                    mount_pref_time = preferedtime
+                    mount_pref_img = preferedimg
+            
+	            if lc_pref_time == snap_pref_time:
+	                preferedimg = snap_pref_img
+	            elif mount_pref_time == snap_pref_time:
+	                preferedimg = snap_pref_img
+            	
 
-            if lc_pref_time == snap_pref_time:
-                preferedimg = snap_pref_img
-            elif mount_pref_time == snap_pref_time:
-                preferedimg = snap_pref_img
-
-    return preferedimg['json']['result']['backupname']  
+    if preferedimg != None:
+        return preferedimg['json']['result']['backupname']
+    else:
+        return ""
 
 def gen_prov_options (poptions, capabilities):
     ret_out = ""

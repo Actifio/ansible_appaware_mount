@@ -116,6 +116,11 @@
       set_fact: 
         image_name: "{{ image | get_image_name (act_restoretime, strict_policy) }}" # Custom filter plugin
       when: image is defined
+    
+    - name: fail when image is not found
+      fail:
+        msg: "Unable to find a viable image. If you're using stric_policy=yes, try not so strict"
+      when: image_name == ''
   when: act_imagename == ''
 
 # Cature the capabilities of this version.
