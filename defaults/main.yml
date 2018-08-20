@@ -27,6 +27,11 @@ act_job_class: ''
 act_nowait_mount: true
 # Actifio image name, option to specify the image name or the restore time 
 act_imagename: ''
+
+# Actifio mount image label
+act_imagelabel: 'Ansible_Playbook'
+
+# For Oracle AppAware Mount
 # Oracle Home
 ora_home: ''
 # Oracle_user
@@ -69,10 +74,12 @@ ora_no_tns_update: ''
 ora_restore_recov: 'TRUE'
 # Recover 
 ora_no_rac: 'FALSE'
+
+# For SQL Server AppAware Mount
 # SQL Server Instance Name
 sql_instance_name: ''
 # Database Name
-sql_db_name: ''
+sql_db_name: 'ANSIBLE'
 # Recover database after recovery
 sql_recover: 'TRUE'
 # Recover userlogins
@@ -81,3 +88,13 @@ sql_userlogins: 'FALSE'
 sql_username: ''
 # SQL Password 
 sql_password: ''
+
+# For SQL Server Group AppAware Mount
+# Source/Selected Database Names
+sql_source_dbnames: ''
+# Consistency Group Name
+sql_cg_name: ''
+# Database Name Prefix
+sql_dbname_prefix: ''
+# Database Name Suffix
+sql_dbname_suffix: ''
