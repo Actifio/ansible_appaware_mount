@@ -3,39 +3,28 @@
 
 # Strict policy: If the restore options cannot be satified, fail operation:
 strict_policy: no
-
 # Restore time for the database.
 act_restoretime: ''
-
 #Actifio Appliance
 act_appliance: ''
-
 # Actifio Username
 act_user: admin
-
 # Password
 act_pass: password
-
 # VendorKey, this can be requested from the Customer Success Engineering team via a case.
 act_vendorkey: ''
-
 # Actifio Host Friendly name or the IP
 act_dest_host: "{{ ansible_hostname }}"
-
 # Actifio Application
 act_appname: ''
-
 # Actifio source host....
 act_src_host: ''
-
 # Actifio Image type (snapshot, dedup, dedupasync, liveclone and syncback)
 # if this is not specified, backups will be searched from all the available
 # images
 act_job_class: ''
-
 # MountImage operations to be non-blocking
 act_nowait_mount: true
-
 # Actifio image name, option to specify the image name or the restore time 
 act_imagename: ''
 # Oracle Home

@@ -21,14 +21,14 @@ Following variables are accepted/required for this role.
 | act_user         | Actifio username. This should be a Actifio user with System Manage priviledges | Y
 | act_pass         | Password for the Actifio User | Y
 | act_vendorkey    | Vendor key can be obtained by the customer through opening a Support Case with the CSE. | Y
+| act_appname 	   | Application name | Y
+| act_src_host 	   | Source host where the application is protected from. | Y
+| ora_home         | Oracle Home Directory | Y
+| ora_db_name      | Oracle DB Name, or the new SID | Y
 | act_restoretime  | Desired time to recover the database to. Based on the time specified, the appropriate image will be selected (if an image is not specified). If a recovery image is not availble for the stipulated restore time, and if the strict_policy is set to no, then the closest image to the restore time will be selected. | N
 | strict_policy    | See act_restoretime | N
 | act_dest_host    | Destination host to mount the database. If not specified, it will default to the ansible_host | N
-| act_appname 	   | Application name | Y
-| act_src_host 	   | Source host where the application is protected from. | Y
 | act_job_class    | snapshot, dedup, dedupasync, liveclone, syncback and OnVault. If not specified would select any based on the Restore time, without any preference to the jobclass. | N
-| ora_home         | Oracle Home Directory | Y
-| ora_db_name      | Oracle DB Name, or the new SID | Y
 | ora_tns_admin    | Oracle TNS_ADMIN path. If not specified would assume ORALCLE_HOME/network/admin | N
 | ora_db_mem       | Amount of memory to be set as the Memory Target. Defaults to 512MB. | N
 | ora_sga_pct 	   | Percentage of SGA form the total memory. | N
@@ -47,6 +47,7 @@ Following variables are accepted/required for this role.
 | ora_no_tns_update 	| Do not update TNS records. Defaults to FALSE. | N
 | ora_restore_recov 	| Recover the oracle database. Defaults to TRUE. | N
 | ora_no_rac 	| Treat as Oracle RAC. Defaults to TRUE. | N
+| act_nowait_mount  | If set to true waits for the mount job to complete. Else return after submitting the job. | N
 
 Example Playbook
 ----------------
