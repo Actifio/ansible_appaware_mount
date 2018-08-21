@@ -113,6 +113,19 @@ def gen_prov_options (poptions, capabilities):
                     ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
     return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
 
+def gen_prov_options_sqlg (poptions, capabilities, sdbs):
+    ret_out = ""
+    for key in poptions:
+        # if this provisioning option is defined
+        if poptions[key] != '':
+            # and this capability is available in this version of actifio
+            for item in capabilities:
+                if item['name'] == str(key):
+                    ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
+            if len(sdbs.split(',')) == 1 and str(key) == 'dbname':
+                ret_out += '<'+str(key)+'>'+str(poptions[key])+'</'+str(key)+'>'
+    return '<provisioningoptions>'+ret_out+'</provisioningoptions>' 
+
 def pick_db_user (dummy, sql, ora):
     if sql == '':
         return ora
@@ -126,6 +139,7 @@ class FilterModule(object):
             'get_image_name': get_image_name, 
             'array_to_csv': array_to_csv,
             'gen_prov_options': gen_prov_options,
+            'gen_prov_options_sqlg': gen_prov_options_sqlg,
             'pick_db_user': pick_db_user
             }
         

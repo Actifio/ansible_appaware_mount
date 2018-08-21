@@ -94,11 +94,48 @@ Example Playbook
     ora_db_name: "MYDEVBEAST" 
 ```
 
-### SQLServer Example
+### SQL Server DB application Example
 
 ```
-Comming soon
+- name: Single DB Application test
+  hosts: localhost
+  become: yes
+  become_method: sudo
+  roles:
+    - { role: ansible_appaware_mount, act_appliance: my-actifio, act_user: ansible, act_pass: mypassword }
+  vars:
+    act_vendorkey: "{{ contact CSE to get yours }}"
+    act_dest_host: "sql-dev-server"
+    act_appname: "DB00"
+    act_src_host: "sql-prd-server"
+    act_job_class: "snapshot"
+    act_imagelabel: "Test1"
+    sql_instance_name: "SQL-DEV-SERVER"
+    sql_db_name: "tDB00"
 ```
+
+### SQL Server Instance application Example
+
+```
+- name: Instance with Multiple DBs test
+  hosts: localhost
+  become: yes
+  become_method: sudo
+  roles:
+    - { role: ansible_appaware_mount, act_appliance: my-actifio, act_user: ansible, act_pass: mypassword }
+  vars:
+    act_vendorkey: "{{ contact CSE to get yours }}"
+    act_dest_host: "sql-dev-server"
+    act_appname: "SQL-PRD-SERVER"
+    act_src_host: "sql-prd-server"
+    act_job_class: "snapshot"
+    act_imagelabel: "Test1"
+    sql_instance_name: "SQL-DEV-SERVER"
+    sql_source_dbnames: "DB01,DB02"
+    sql_dbname_prefix: "tst"
+    sql_cg_name: "TestCG1"
+```
+
 
 License
 -------
