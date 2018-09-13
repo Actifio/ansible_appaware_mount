@@ -103,6 +103,9 @@
             image_list: "{{ lsbackup }}"
       when: act_job_class != ''
 
+    # Debug
+    - debug: var=image_list
+      
     # Selecting the image to mount based on the restoretime and strict_poliocy
     - name: selecting an image to mount
       uri:
@@ -111,6 +114,9 @@
       register: image 
       with_items: 
         - "{{ image_list.json.result }}"
+
+    # Debug
+    - debug: var=image
 
     - name: save the image name to facts
       set_fact: 

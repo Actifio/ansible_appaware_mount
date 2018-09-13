@@ -49,6 +49,9 @@ def get_image_name (values, resttime, strict):
         mountedhost = image['json']['result']['mountedhost']
         # Job class of the image
         jobclass = image['json']['result']['jobclass']
+        # For skipping further mountedhost check if liveclone
+        if jobclass == 'liveclone':
+            mountedhost = '0'
 
         if componenttype == '0' and mountedhost == '0':
             # We need to track the previous closest image to check the this image is close in time
