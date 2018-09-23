@@ -14,13 +14,15 @@
 
 # Pre-FLight check for variable consistency
 - fail:
-    msg: the variable "{{ item }}" should be defined.
-  when: item == ''
+    msg: the variable "{{ item.name }}" should be defined.
+  when: item.value == ''
   with_items:
-    - "{{ act_src_host }}"
-    - "{{ act_appname }}"
-    - "{{ act_vendorkey }}"
-    - "{{ act_restoretime }}"
+    - { name: "act_src_host", value: act_src_host }
+    - { name: "act_appname", value: act_appname }
+    - { name: "act_vendorkey", value: act_vendorkey }
+    - { name: "act_appliance", value: act_appliance }
+    - { name: "act_user", value: act_user }
+    - { name: "act_pass", value: act_pass }
 
 # Generate a login token using the username, password and vendorkey
 - name: generating authentication token 
@@ -96,7 +98,7 @@
     - block:
         - name: get the image list select the image from (for {{ act_job_class }} job_class)
           uri: 
-            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}&sessionid={{ act_sessionid }}"
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}{{ '&consistencydate<' | urlencode }}{{ act_restoretime | urlencode }}&sessionid={{ act_sessionid }}"
             validate_certs: no
           register: lsbackup
         - set_fact:
@@ -114,17 +116,22 @@
 
     - name: save the image name to facts
       set_fact: 
-        image_name: "{{ image | get_image_name (act_restoretime, strict_policy) }}" # Custom filter plugin
+        image_name: "image={{ image | get_image_name (act_restoretime, strict_policy) }}&" # Custom filter plugin
       when: image is defined
     
     - name: fail when image is not found
       fail:
         msg: "Unable to find a viable image. If you're using stric_policy=yes, try not so strict"
       when: image_name == ''
-  when: act_imagename == ''
+  when: act_imagename == '' and act_restoretime != 'latest'
+
+# when the latest image is selected, don't looks for the image and use the appid
+- name: set the image name when recovering to the latest time
+  set_fact:
+      image_name: "appid={{ lsapplication.json.result[0].id }}&"
+  when: act_restoretime == 'latest'
 
 # Cature the capabilities of this version.
-
 - name: capturing the capcbilities from the actifio appliance
   uri:
     url: "{{ act_api_info }}/lsappclass?name={{ appclass }}&sessionid={{ act_sessionid }}"
@@ -154,7 +161,7 @@
 # Trigger appawre mount
 - name: Oracle appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
@@ -163,7 +170,7 @@
   
 - name: SQL Server appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
@@ -172,7 +179,7 @@
 
 - name: SQL Server Group appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?image={{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}&parts={{ sql_source_dbnames | urlencode }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options_sqlg (capabilities.json.result, sql_source_dbnames) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}&parts={{ sql_source_dbnames | urlencode }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options_sqlg (capabilities.json.result, sql_source_dbnames) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200

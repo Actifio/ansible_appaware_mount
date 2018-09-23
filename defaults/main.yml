@@ -4,7 +4,7 @@
 # Strict policy: If the restore options cannot be satified, fail operation:
 strict_policy: no
 # Restore time for the database.
-act_restoretime: ''
+act_restoretime: 'latest'
 #Actifio Appliance
 act_appliance: ''
 # Actifio Username
