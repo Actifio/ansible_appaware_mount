@@ -29,6 +29,8 @@ def get_image_name (values, resttime, strict):
     snap_pref_time = None
     lc_pref_time = None
     mount_pref_time = None
+    onvault_pref_time = None
+    dedup_pref_time = None
 
     for image in values['results']:
         try:
@@ -93,12 +95,22 @@ def get_image_name (values, resttime, strict):
                 elif jobclass == "mount":
                     mount_pref_time = preferedtime
                     mount_pref_img = preferedimg
+                elif jobclass == "onvault":
+                    onvault_pref_time = preferedtime
+                    onvault_pref_img = preferedimg
+                elif jobclass == "dedup":
+                    dedup_pref_time = preferedtime
+                    dedup_pref_img = preferedimg
+                    
             
 	            if lc_pref_time == snap_pref_time:
 	                preferedimg = snap_pref_img
 	            elif mount_pref_time == snap_pref_time:
 	                preferedimg = snap_pref_img
-            	
+                elif onvault_pref_time == snap_pref_time:
+                    preferedimg = snap_pref_img
+            	elif dedup_pref_time == snap_pref_time:
+                    preferedimg = snap_pref_img
 
     if preferedimg != None:
         return preferedimg['json']['result']['backupname']
