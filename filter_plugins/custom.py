@@ -103,13 +103,13 @@ def get_image_name (values, resttime, strict):
                     dedup_pref_img = preferedimg
                     
             
-	            if lc_pref_time == snap_pref_time:
+	            if lc_pref_time == snap_pref_time and snap_pref_time != None:
 	                preferedimg = snap_pref_img
-	            elif mount_pref_time == snap_pref_time:
+	            elif mount_pref_time == snap_pref_time and snap_pref_time != None:
 	                preferedimg = snap_pref_img
-                elif onvault_pref_time == snap_pref_time:
+                elif onvault_pref_time == snap_pref_time and snap_pref_time != None:
                     preferedimg = snap_pref_img
-            	elif dedup_pref_time == snap_pref_time:
+            	elif dedup_pref_time == snap_pref_time and snap_pref_time != None:
                     preferedimg = snap_pref_img
 
     if preferedimg != None:
