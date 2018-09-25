@@ -1,4 +1,5 @@
 galaxy_info:
+  version: v0.1
   author: Kosala Atapattu
   description: Ansible role for Actifio AppAware mounts
   company: Actifio
