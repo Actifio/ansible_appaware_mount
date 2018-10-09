@@ -38,7 +38,7 @@
 # Filte out the applicationid based on the application_name and source_host
 - name: get the application id
   uri:
-    url: "{{ act_api_info }}/lsapplication?sessionid={{ act_sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}"
+    url: "{{ act_api_info }}/lsapplication?sessionid={{ act_sessionid }}&filtervalue={{ 'appname=' | urlencode }}{{ act_appname }}{{ '&hostname=' | urlencode }}{{ act_src_host  }}{{ '&apptype!=VMBackup' | urlencode }} "
     validate_certs: no
     method: GET
   register: lsapplication   

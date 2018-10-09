@@ -2,7 +2,7 @@
 # defaults file for ansible_appaware_mount
 
 # Strict policy: If the restore options cannot be satified, fail operation:
-strict_policy: no
+strict_policy: yes
 # Restore time for the database.
 act_restoretime: 'latest'
 #Actifio Appliance
