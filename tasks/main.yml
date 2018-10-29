@@ -25,15 +25,26 @@
     - { name: "act_pass", value: act_pass }
 
 # Generate a login token using the username, password and vendorkey
-- name: generating authentication token 
-  uri:
-    url: "{{ act_api_login }}"
-    validate_certs: no  
-  register: logintoken
+- name: check the existing session id is ok
+  uri: 
+    url: "{{ act_api_info }}/lsversion?sessionid={{ act_sessionid }}"
+    validate_certs: no
+  register: session_ok
+  when: act_sessionid is defined
 
-- name: session id is a fact
-  set_fact: 
-    act_sessionid: "{{ logintoken.json.sessionid }}"
+- name: geenrate auth token is not fact set or session has expired
+  block:
+    - name: generating authentication token 
+      uri:
+        url: "{{ act_api_login }}"
+        validate_certs: no  
+      register: logintoken
+      
+    - name: sessionid is a fact
+      set_fact: 
+        act_sessionid: "{{ logintoken.json.sessionid }}"
+      cacheable: yes
+  when: act_sessionid is not defined or session_ok.status != 200
 
 # Filte out the applicationid based on the application_name and source_host
 - name: get the application id
