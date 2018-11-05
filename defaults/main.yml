@@ -27,10 +27,12 @@ act_job_class: ''
 act_nowait_mount: true
 # Actifio image name, option to specify the image name or the restore time 
 act_imagename: ''
-
 # Actifio mount image label
 act_imagelabel: 'Ansible_Playbook'
-
+# Actifio pre_script
+act_pre_script: ''
+# Actifio post script
+act_post_script: ''
 # For Oracle AppAware Mount
 # Oracle Home
 ora_home: ''
