@@ -33,6 +33,12 @@ act_imagelabel: 'Ansible_Playbook'
 act_pre_script: ''
 # Actifio post script
 act_post_script: ''
+# Actifio LiveClone name, valid for prepmount only
+act_liveclone: ''
+# Actifio Liveclone Label
+act_lc_label: ''
+# Is this a prepmount
+act_prepmount: no
 # For Oracle AppAware Mount
 # Oracle Home
 ora_home: ''
