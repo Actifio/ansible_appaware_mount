@@ -184,6 +184,9 @@
     script_string: "{{ script_string }} + [ 'name={{ act_post_script }}:phase=POST' ]"
   when: act_post_script != ''
 
+- set_fact: 
+    script_cmd: ''
+
 - name: compose the script string
   set_fact:
     script_cmd: "&script={{ script_string | join(';') | urlencode }}"
