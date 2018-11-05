@@ -170,6 +170,10 @@
   when: act_restoretime == "latest" or strict_policy == false
 
 # Compose the script data
+- name: initiate the script data structures
+  set_fact:
+    script_string: "{{ [] }}"
+
 - name: compose the pre_script string
   set_fact:
     script_string: "{{ script_string }} + [ 'name={{ act_pre_script }}:phase=PRE' ]"
