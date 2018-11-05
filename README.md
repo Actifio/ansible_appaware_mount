@@ -30,6 +30,8 @@ Following variables are accepted/required for this role.
 | act_dest_host    | Destination host to mount the database. If not specified, it will default to the ansible_host | N
 | act_job_class    | snapshot, dedup, dedupasync, liveclone, syncback and OnVault. If not specified would select any based on the Restore time, without any preference to the jobclass. | N
 | act_nowait_mount  | If set to true waits for the mount job to complete. Else return after submitting the job. | N
+| act_pre_script  | This variable specifies the pre script for the mount job. The script should follow the supper script notation, for more information reffer to hosts.pdf in the documentation library. This should be script name only (for e.g.: ```pre.sh```), and the file need to exist in UNIX: ```/act/scripts/``` or Windows: ```C:\Program Files\Actifio\scripts``` folder. | N
+| act_post_script  | This variable specifies the post script for the mount job. The script should follow the supper script notation, for more information reffer to hosts.pdf in the documentation library. This should be script name only (for e.g.: ```data_mask.sh```), and the file need to exist in for UNIX: ```/act/scripts/``` or Windows: ```C:\Program Files\Actifio\scripts``` folder. | N
 
 
 ### Oracle Related
