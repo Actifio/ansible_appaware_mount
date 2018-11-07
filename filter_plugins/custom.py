@@ -27,6 +27,7 @@ def get_image_name (values, resttime, strict):
     preferedimg = None
 
     snap_pref_time = None
+    snap_pref_img = None
     lc_pref_time = None
     mount_pref_time = None
     onvault_pref_time = None
