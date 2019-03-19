@@ -27,6 +27,7 @@ def get_image_name (values, resttime, strict):
     preferedimg = None
 
     snap_pref_time = None
+    snap_pref_img = None
     lc_pref_time = None
     mount_pref_time = None
     onvault_pref_time = None
@@ -102,15 +103,15 @@ def get_image_name (values, resttime, strict):
                     dedup_pref_time = preferedtime
                     dedup_pref_img = preferedimg
                     
-            
-    if lc_pref_time == snap_pref_time:
-        preferedimg = snap_pref_img
-    elif mount_pref_time == snap_pref_time:
-        preferedimg = snap_pref_img
-    elif onvault_pref_time == snap_pref_time:
-        preferedimg = snap_pref_img
-    elif dedup_pref_time == snap_pref_time:
-        preferedimg = snap_pref_img
+    if snap_pref_img != None:        
+        if lc_pref_time == snap_pref_time:
+            preferedimg = snap_pref_img
+        elif mount_pref_time == snap_pref_time:
+            preferedimg = snap_pref_img
+        elif onvault_pref_time == snap_pref_time:
+            preferedimg = snap_pref_img
+        elif dedup_pref_time == snap_pref_time:
+            preferedimg = snap_pref_img
 
     if preferedimg != None:
         return preferedimg['json']['result']['backupname']

@@ -22,7 +22,6 @@ Following variables are accepted/required for this role.
 | act_appliance    | Actifio Appliance IP or FQDN. | Y               |
 | act_user         | Actifio username. This should be a Actifio user with System Manage priviledges | Y
 | act_pass         | Password for the Actifio User | Y
-| act_vendorkey    | Vendor key can be obtained by the customer through opening a Support Case with the CSE. | Y
 | act_appname 	   | Application name | Y
 | act_src_host 	   | Source host where the application is protected from. | Y
 | act_restoretime  | Desired time to recover the database to. Based on the time specified, the appropriate image will be selected (if an image is not specified). If a recovery image is not availble for the stipulated restore time, and if the strict_policy is set to no, then the closest image to the restore time will be selected. | N
@@ -30,6 +29,8 @@ Following variables are accepted/required for this role.
 | act_dest_host    | Destination host to mount the database. If not specified, it will default to the ansible_host | N
 | act_job_class    | snapshot, dedup, dedupasync, liveclone, syncback and OnVault. If not specified would select any based on the Restore time, without any preference to the jobclass. | N
 | act_nowait_mount  | If set to true waits for the mount job to complete. Else return after submitting the job. | N
+| act_pre_script  | This variable specifies the pre script for the mount job. The script should follow the supper script notation, for more information reffer to hosts.pdf in the documentation library. This should be script name only (for e.g.: ```pre.sh```), and the file need to exist in UNIX: ```/act/scripts/``` or Windows: ```C:\Program Files\Actifio\scripts``` folder. | N
+| act_post_script  | This variable specifies the post script for the mount job. The script should follow the supper script notation, for more information reffer to hosts.pdf in the documentation library. This should be script name only (for e.g.: ```data_mask.sh```), and the file need to exist in for UNIX: ```/act/scripts/``` or Windows: ```C:\Program Files\Actifio\scripts``` folder. | N
 
 
 ### Oracle Related

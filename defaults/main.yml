@@ -12,7 +12,7 @@ act_user: admin
 # Password
 act_pass: password
 # VendorKey, this can be requested from the Customer Success Engineering team via a case.
-act_vendorkey: ''
+act_vendorkey: '1957-4270-2506-0A71-0541-5920-0134-1235-5501-0711-275F-4359-0459-5566-3A34-5E1C-47'
 # Actifio Host Friendly name or the IP
 act_dest_host: "{{ ansible_hostname }}"
 # Actifio Application
@@ -27,10 +27,18 @@ act_job_class: ''
 act_nowait_mount: true
 # Actifio image name, option to specify the image name or the restore time 
 act_imagename: ''
-
 # Actifio mount image label
 act_imagelabel: 'Ansible_Playbook'
-
+# Actifio pre_script
+act_pre_script: ''
+# Actifio post script
+act_post_script: ''
+# Actifio LiveClone name, valid for prepmount only
+act_liveclone: ''
+# Actifio Liveclone Label
+act_lc_label: ''
+# Is this a prepmount
+act_prepmount: no
 # For Oracle AppAware Mount
 ora_asm_diskgroup: ''
 # RAC node list

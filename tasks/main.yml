@@ -25,15 +25,26 @@
     - { name: "act_pass", value: act_pass }
 
 # Generate a login token using the username, password and vendorkey
-- name: generating authentication token 
-  uri:
-    url: "{{ act_api_login }}"
-    validate_certs: no  
-  register: logintoken
+- name: check the existing session id is ok
+  uri: 
+    url: "{{ act_api_info }}/lsversion?sessionid={{ act_sessionid }}"
+    validate_certs: no
+  register: session_ok
+  when: act_sessionid is defined
 
-- name: session id is a fact
-  set_fact: 
-    act_sessionid: "{{ logintoken.json.sessionid }}"
+- name: geenrate auth token is not fact set or session has expired
+  block:
+    - name: generating authentication token 
+      uri:
+        url: "{{ act_api_login }}"
+        validate_certs: no  
+      register: logintoken
+      
+    - name: sessionid is a fact
+      set_fact: 
+        act_sessionid: "{{ logintoken.json.sessionid }}"
+      cacheable: yes
+  when: act_sessionid is not defined or session_ok.status != 200
 
 # Filte out the applicationid based on the application_name and source_host
 - name: get the application id
@@ -148,15 +159,38 @@
     block_mode: ""
   when: act_nowait_mount != true
 
-- name: set recovery time  
+- name: set recovery time 
   set_fact:
     recovery_time: "&recoverytime={{ act_restoretime | urlencode }}"
-  when: act_restoretime != "latest" and strict_policy == yes
+  when: act_restoretime != "latest" and strict_policy == true
 
 - name: unset recovery time  
   set_fact:
     recovery_time: ""
-  when: act_restoretime == "latest" or strict_policy == no
+  when: act_restoretime == "latest" or strict_policy == false
+
+# Compose the script data
+- name: initiate the script data structures
+  set_fact:
+    script_string: "{{ [] }}"
+
+- name: compose the pre_script string
+  set_fact:
+    script_string: "{{ script_string }} + [ 'name={{ act_pre_script }}:phase=PRE' ]"
+  when: act_pre_script != ''
+
+- name: compose the post_script string
+  set_fact:
+    script_string: "{{ script_string }} + [ 'name={{ act_post_script }}:phase=POST' ]"
+  when: act_post_script != ''
+
+- set_fact: 
+    script_cmd: ''
+
+- name: compose the script string
+  set_fact:
+    script_cmd: "&script={{ script_string | join(';') | urlencode }}"
+  when: act_pre_script != '' or act_post_script != ''
 
 - name: ASM racnode list is empty
   set_fact:
@@ -181,7 +215,7 @@
 # Trigger appawre mount
 - name: Oracle appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ volgroupname }}{{ asmracnodelist }}{{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ volgroupname }}{{ asmracnodelist }}{{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
@@ -190,7 +224,7 @@
   
 - name: SQL Server appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
@@ -199,7 +233,7 @@
 
 - name: SQL Server Group appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}&parts={{ sql_source_dbnames | urlencode }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options_sqlg (capabilities.json.result, sql_source_dbnames) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}&parts={{ sql_source_dbnames | urlencode }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_sql | gen_prov_options_sqlg (capabilities.json.result, sql_source_dbnames) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
