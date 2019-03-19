@@ -38,6 +38,9 @@ act_lc_label: ''
 # Is this a prepmount
 act_prepmount: no
 # For Oracle AppAware Mount
+ora_asm_diskgroup: ''
+# RAC node list
+ora_rac_nodelist: ''
 # Oracle Home
 ora_home: ''
 # Oracle_user

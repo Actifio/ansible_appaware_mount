@@ -62,7 +62,7 @@
 # try to ascertain the destination host ID
 - name: search for host_id from name
   block: 
-    - uri:
+    - uri: query for the host based on the name
         url: "{{ act_api_info }}/lshost?sessionid={{ act_sessionid }}&filtervalue=hostname={{ act_dest_host }}"
         validate_certs: no
       register: hostid
@@ -192,10 +192,30 @@
     script_cmd: "&script={{ script_string | join(';') | urlencode }}"
   when: act_pre_script != '' or act_post_script != ''
 
+- name: ASM racnode list is empty
+  set_fact:
+    asmracnodelist: ""
+  when: ora_rac_nodelist == ""
+
+- name: ASM racnode list is not empty
+  set_fact: 
+    asmracnodelist: "&asmracnodelist={{ ora_rac_nodelist }}"
+  when: ora_rac_nodelist != ""
+
+- name: set diskgroup name
+  set_fact: 
+    volgroupname: ""
+  when: ora_asm_diskgroup == ""
+
+- name: set diskgroup name
+  set_fact:
+    volgroupname: "&volgroupname={{ volgroupname }}"
+  when: ora_asm_diskgroup != ""
+
 # Trigger appawre mount
 - name: Oracle appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ volgroupname }}{{ asmracnodelist }}{{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}"
     method: POST
     validate_certs: no
     timeout: 1200
