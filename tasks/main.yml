@@ -54,6 +54,16 @@
     method: GET
   register: lsapplication   
 
+- name: select the appid for a local app
+  set_fact:
+    source_appid: lsapplication.json.result[0].id 
+  when: lsapplication.json.result[0].originalappid == "0"
+
+- name: select the appid for a remote app
+  set_fact:
+    source_appid: lsapplication.json.result[0].originalappid
+  when: lsapplication.json.result[0].originalappid != "0"
+
 # Extract the appclass of the application. Using this in mountimage
 - name: saving application class
   set_fact: 
@@ -98,7 +108,7 @@
     - block: 
         - name: get the image list select the image from (for all the job_classes)
           uri: 
-            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}&sessionid={{ act_sessionid }}"
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ source_appid }}&sessionid={{ act_sessionid }}"
             validate_certs: no
           register: lsbackup
         - set_fact:
@@ -109,9 +119,10 @@
     - block:
         - name: get the image list select the image from (for {{ act_job_class }} job_class)
           uri: 
-            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ lsapplication.json.result[0].id }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}{{ '&consistencydate<' | urlencode }}{{ act_restoretime | urlencode }}&sessionid={{ act_sessionid }}"
+            url: "{{ act_api_info }}/lsbackup?filtervalue={{ 'appid=' | urlencode }}{{ source_appid }}{{ '&jobclass=' | urlencode }}{{ act_job_class | urlencode }}{{ '&consistencydate<' | urlencode }}{{ act_restoretime | urlencode }}&sessionid={{ act_sessionid }}"
             validate_certs: no
           register: lsbackup
+          
         - set_fact:
             image_list: "{{ lsbackup }}"
       when: act_job_class != ''
@@ -139,7 +150,7 @@
 # when the latest image is selected, don't looks for the image and use the appid
 - name: set the image name when recovering to the latest time
   set_fact:
-      image_name: "appid={{ lsapplication.json.result[0].id }}&"
+      image_name: "appid={{ source_appid }}&"
   when: act_restoretime == 'latest'
 
 # Cature the capabilities of this version.
@@ -199,7 +210,7 @@
 
 - name: ASM racnode list is not empty
   set_fact: 
-    asmracnodelist: "&asmracnodelist={{ ora_rac_nodelist }}"
+    asmracnodelist: ",asmracnodelist={{ ora_rac_nodelist }}"
   when: ora_rac_nodelist != ""
 
 - name: set diskgroup name
@@ -209,7 +220,7 @@
 
 - name: set diskgroup name
   set_fact:
-    volgroupname: "&volgroupname={{ volgroupname }}"
+    volgroupname: ",volgroupname={{ volgroupname }}"
   when: ora_asm_diskgroup != ""
 
 # Trigger appawre mount
