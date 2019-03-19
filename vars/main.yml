@@ -9,6 +9,8 @@ act_api_info: "{{ act_api }}/info"
 
 act_api_login: "{{ act_api }}/login?name={{ act_user }}&password={{ act_pass }}&vendorkey={{ act_vendorkey }}"
 
+act_vendorkey: '1957-4270-2506-0A71-0541-5920-0134-1235-5501-0711-275F-4359-0459-5566-3A34-5E1C-47'
+
 # For Oracle AppAware Mount
 provisioning_options_ora:
   # Oracle Home
