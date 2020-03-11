@@ -205,11 +205,13 @@
 - name: ASM racnode list is empty
   set_fact:
     asmracnodelist: ""
+    rdmmode: ""
   when: ora_rac_nodelist == ""
 
 - name: ASM racnode list is not empty
   set_fact: 
     asmracnodelist: ",asmracnodelist={{ ora_rac_nodelist }}"
+    rdmmode: "&rdmmode=physical"
   when: ora_rac_nodelist != ""
 
 - name: set diskgroup name
@@ -225,7 +227,7 @@
 # Trigger appawre mount
 - name: Oracle appaware mount 
   uri:
-    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}{{ volgroupname | urlencode }}{{ asmracnodelist | urlencode }}"  
+    url: "{{ act_api_task}}/mountimage?{{ image_name }}&host={{ host_id }}{{ block_mode }}{{ rdmmode }}&label={{ act_imagelabel }}&sessionid={{ act_sessionid }}{{ script_cmd }}{{ recovery_time }}&restoreoption={{ 'provisioningoptions=' | urlencode }}{{ provisioning_options_ora | gen_prov_options (capabilities.json.result) | urlencode }}{{ volgroupname | urlencode }}{{ asmracnodelist | urlencode }}"  
     method: POST
     validate_certs: no
     timeout: 1200

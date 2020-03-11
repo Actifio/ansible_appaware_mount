@@ -39,6 +39,8 @@ Following variables are accepted/required for this role.
 |------------------|---|---|
 | ora_home         | Oracle Home Directory | Y
 | ora_db_name      | Oracle DB Name, or the new SID | Y
+| ora_rac_nodelist | List of Oracle raC nodes, for RAC mounts. If it's ASM, need to specify the IP of the ASM node. | N 
+| ora_asm_diskgroup | Diskgroup name for ASM mounts. | N
 | ora_tns_admin    | Oracle TNS_ADMIN path. If not specified would assume ORALCLE_HOME/network/admin | N
 | ora_db_mem       | Amount of memory to be set as the Memory Target. Defaults to 512MB. | N
 | ora_sga_pct 	   | Percentage of SGA form the total memory. | N
