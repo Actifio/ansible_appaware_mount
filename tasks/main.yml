@@ -39,7 +39,6 @@
         url: "{{ act_api_login }}"
         validate_certs: no  
       register: logintoken
-      
     - name: sessionid is a fact
       set_fact: 
         act_sessionid: "{{ logintoken.json.sessionid }}"
@@ -72,7 +71,7 @@
 # try to ascertain the destination host ID
 - name: search for host_id from name
   block: 
-    - uri: query for the host based on the name
+    - uri:
         url: "{{ act_api_info }}/lshost?sessionid={{ act_sessionid }}&filtervalue=hostname={{ act_dest_host }}"
         validate_certs: no
       register: hostid
