@@ -42,7 +42,7 @@
     - name: sessionid is a fact
       set_fact: 
         act_sessionid: "{{ logintoken.json.sessionid }}"
-      cacheable: yes
+        cacheable: yes
   when: act_sessionid is not defined or session_ok.status != 200
 
 # Filte out the applicationid based on the application_name and source_host
@@ -55,12 +55,12 @@
 
 - name: select the appid for a local app
   set_fact:
-    source_appid: lsapplication.json.result[0].id 
+    source_appid: "{{ lsapplication.json.result[0].id }}"
   when: lsapplication.json.result[0].originalappid == "0"
 
 - name: select the appid for a remote app
   set_fact:
-    source_appid: lsapplication.json.result[0].originalappid
+    source_appid: "{{ lsapplication.json.result[0].originalappid }}"
   when: lsapplication.json.result[0].originalappid != "0"
 
 # Extract the appclass of the application. Using this in mountimage
@@ -149,7 +149,7 @@
 # when the latest image is selected, don't looks for the image and use the appid
 - name: set the image name when recovering to the latest time
   set_fact:
-      image_name: "appid={{ source_appid }}&"
+    image_name: "appid={{ source_appid }}&"
   when: act_restoretime == 'latest'
 
 # Cature the capabilities of this version.
